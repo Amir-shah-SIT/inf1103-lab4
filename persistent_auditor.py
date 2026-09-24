@@ -46,12 +46,18 @@ def process_delivery(inventoryTotal, new_value):
     print(inventoryTotal)
     return inventoryTotal
 
-#def calculate_tax(amount):
-    #tax = amount * 2.5 * .10
-    #return tax
+def calculate_tax(inventory):
+    if inventory != []:
+        tax = 0
+        for items in inventory:
+            tax += int(items[2]) * 3 *.10 
+    return tax
 
-def generate_report(total_units, failed_attempts):  
-    print("\nTotal Deliveries Processed: " + str(total_units))
+def generate_report(total_units, failed_attempts):
+    totalitems = 0
+    for items in total_units:
+        totalitems += int(items[2]) 
+    print("\nTotal Deliveries Processed: " + str(totalitems))
     print("\nNumber of Failed/Rejected Entries: " + str(failed_attempts))
     return 
 
@@ -62,13 +68,13 @@ while True :
     accepted_Input = get_valid_input()
     if accepted_Input == 'quit':
         generate_report(inventory,rejected)
-        #tax = calculate_tax(inventory)
-        #print("\n The tax amount is: $"+ str(tax))
+        tax = calculate_tax(inventory)
+        print("\n The tax amount is: $"+ str(round(tax,2)))
         break
     else:
         inventory = process_delivery(inventory,accepted_Input)
-        #tax = calculate_tax(inventory)
-        #print("\n The tax amount is: $"+ str(tax))
+        tax = calculate_tax(inventory)
+        print("\n The tax amount is: $"+ str(round(tax,2)))
         
             
     
