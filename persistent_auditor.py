@@ -128,7 +128,8 @@ while True :
     if accepted_Input == 'quit':
         inventory = write_inventory(inventory,newInventory)
         generate_report(inventory,newInventory,rejected)
-        tax = calculate_tax(inventory)
+        if len(inventory) != 0:
+            tax = calculate_tax(inventory)
         print("\n The tax amount is: $"+ str(round(tax,2)))
         break
     else:
