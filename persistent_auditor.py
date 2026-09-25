@@ -7,7 +7,10 @@ def load_inventory():
             for perIndex in readInventory:   
                 invetoryIndex = [item.strip() for item in perIndex.split(",")]
                 inventory.append(invetoryIndex)
-            print(inventory)
+            print("=====================================")
+            print("Current order: ")
+            for items in inventory:
+                print(", ".join(items))
             return inventory
     except FileNotFoundError:
         with open("inventoryList.txt", "w+") as file:
@@ -15,46 +18,55 @@ def load_inventory():
             return []
     
 def write_inventory(inventory,newInventory):
-    for inMain in inventory:
-        for inNew in newInventory:
+    print("=====================================")
+    print("All order: ")
+    for inNew in newInventory:
+        maxLimit = len(inventory)
+        counterLimit = 0
+        for inMain in inventory:
+            counterLimit += 1
             if inNew[0] in inMain:
-                inMain[2] = int(inMain[2]) + int(inNew[2])
+                inMain[2] = str(int(inMain[2]) + int(inNew[2]))
                 newInventory.remove(inNew)
                 break
-            inventory.append(inNew)  
+        if counterLimit == maxLimit:    
+            inventory.append(inNew)
+    for each in inventory:
+        print(", ".join(each))
     with open("output.txt", "w") as file:
         for row in inventory:
             # Convert elements to strings and join them with a comma
             file.write(", ".join(map(str, row)) + "\n")
+    
+    print("Inventory saved to output.txt")
     return inventory
             
 def get_valid_input():
     while True: 
+        backInput = False
         global rejected 
         productInput = input("\nEnter product name or quit:\n")
         if productInput.lower() == "quit":
             return productInput.lower()
         elif productInput.isdigit() == False and productInput != "":
-            break
+            while backInput == False:
+                userInput = input("\nInput additional stock value, back or quit:\n")
+                if userInput.isdigit() == True:
+                    if int(userInput) < 0:
+                        rejected += 1
+                        print("\nUnacceptable input")
+                    else:
+                        return [productInput,str(userInput)]
+                elif userInput.lower() == "quit":
+                    return userInput.lower()
+                elif userInput.lower() == "back":
+                    backInput = True
+                else:
+                    rejected += 1
+                    print("Unacceptable input")
         else:
             rejected += 1
             print("Unacceptable input")
-    while True:
-        userInput = input("\nInput additional stock value, back or quit:\n")
-        if userInput.isdigit() == True:
-            if int(userInput) < 0:
-                rejected += 1
-                print("\nUnacceptable input")
-            else:
-                return [productInput,userInput]
-        elif userInput.lower() == "quit":
-            return userInput.lower()
-        elif userInput.lower() == "back":
-            break
-        else:
-            rejected += 1
-            print("Unacceptable input")
-
 def process_delivery(inventoryTotal,newInventory,new_value):
     if len(inventoryTotal) == 0 and len(newInventory) == 0:
         new_value.insert(0,"1001")
@@ -79,6 +91,12 @@ def process_delivery(inventoryTotal,newInventory,new_value):
         #check if new inventory is empty if it is we increment from old
         elif len(newInventory) == 0:
             new_value.insert(0,str(int(inventoryTotal[-1][0]) + 1))
+            newInventory.append(new_value)
+        else:
+            if inventoryTotal[-1][0] >= newInventory[-1][0]:
+                new_value.insert(0,str(int(inventoryTotal[-1][0]) + 1)) 
+            else:
+                new_value.insert(0,str(int(newInventory[-1][0]) + 1)) 
             newInventory.append(new_value)
     return newInventory
 
@@ -115,6 +133,10 @@ while True :
         break
     else:
         newInventory = process_delivery(inventory,newInventory,accepted_Input)
+        print("=====================================")
+        print("Current order: ")
+        for perItem in newInventory:
+            print(", ".join(perItem))
         
             
     
