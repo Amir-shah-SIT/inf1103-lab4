@@ -1,7 +1,7 @@
 rejected = 0
 def load_inventory():
     try:
-        with open("output.txt", "r") as file:
+        with open("inventory.txt", "r") as file:
             readInventory = file.readlines()
             inventory = []
             for perIndex in readInventory:   
@@ -33,12 +33,12 @@ def write_inventory(inventory,newInventory):
             inventory.append(inNew)
     for each in inventory:
         print(", ".join(each))
-    with open("output.txt", "w") as file:
+    with open("inventory.txt", "w") as file:
         for row in inventory:
             # Convert elements to strings and join them with a comma
             file.write(", ".join(map(str, row)) + "\n")
     
-    print("Inventory saved to output.txt")
+    print("Inventory saved to inventory.txt")
     return inventory
             
 def get_valid_input():
