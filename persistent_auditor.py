@@ -3,22 +3,25 @@ def load_inventory():
     try:
         with open("output.txt", "r") as file:
             readInventory = file.readlines()
-            print(readInventory)
-            return readInventory
+            inventory = []
+            for perIndex in readInventory:   
+                invetoryIndex = [item.strip() for item in perIndex.split(",")]
+                inventory.append(invetoryIndex)
+            print(inventory)
+            return inventory
     except FileNotFoundError:
         with open("inventoryList.txt", "w+") as file:
             readInventory = file.read()
             return []
-
     
 def write_inventory(inventory,newInventory):
     for inMain in inventory:
         for inNew in newInventory:
             if inNew[0] in inMain:
-                inMain = int(inMain[2]) + int(inNew[2])
+                inMain[2] = int(inMain[2]) + int(inNew[2])
                 newInventory.remove(inNew)
-    for items in newInventory:
-        inventory.append(items)  
+                break
+            inventory.append(inNew)  
     with open("output.txt", "w") as file:
         for row in inventory:
             # Convert elements to strings and join them with a comma
@@ -31,45 +34,52 @@ def get_valid_input():
         productInput = input("\nEnter product name or quit:\n")
         if productInput.lower() == "quit":
             return productInput.lower()
-        elif productInput.isdigit() == False:
-            userInput = input("\nInput additional stock value or quit:\n")
-            if userInput.isdigit() == True:
-                if int(userInput) < 0:
-                    rejected += 1
-                    print("\nUnacceptable input")
-                else:
-                    return [productInput,userInput]
-            elif userInput.lower() == "quit":
-                return userInput.lower()
-            else:
-                rejected += 1
-                print("Unacceptable input")
+        elif productInput.isdigit() == False and productInput != "":
+            break
         else:
             rejected += 1
             print("Unacceptable input")
-    
+    while True:
+        userInput = input("\nInput additional stock value, back or quit:\n")
+        if userInput.isdigit() == True:
+            if int(userInput) < 0:
+                rejected += 1
+                print("\nUnacceptable input")
+            else:
+                return [productInput,userInput]
+        elif userInput.lower() == "quit":
+            return userInput.lower()
+        elif userInput.lower() == "back":
+            break
+        else:
+            rejected += 1
+            print("Unacceptable input")
+
 def process_delivery(inventoryTotal,newInventory,new_value):
     if len(inventoryTotal) == 0 and len(newInventory) == 0:
         new_value.insert(0,"1001")
         newInventory.append(new_value)
     else:
         addedtoExisting = False
+        #check if item exists in newinventory if so increase the amount of stock
         for items in newInventory:
             if new_value[0] in items:
                 items[2] = str(int(new_value[1]) + int(items[2]))
-                addedtoExisting = True
-        if addedtoExisting == False:
-            if len(inventoryTotal) != 0:
-                if inventoryTotal[-1][0] >= newInventory[-1][0]:
-                    new_value.insert(0,str(int(inventoryTotal[-1][0]) + 1)) 
-                else:
-                    new_value.insert(0,str(int(newInventory[-1][0]) + 1)) 
+                return newInventory
+            #check if old inventory empty if empty we will increment from new inventory
+     #check if item is in old inventory if it is copy the index
+        for items in inventoryTotal:
+            if new_value[0] == items[1]:
+                new_value.insert(0,str(int(items[0]))) 
                 newInventory.append(new_value)
-            else:
-                new_value.insert(0,str(int(newInventory[-1][0]) + 1)) 
-                newInventory.append(new_value)
-
-    print(newInventory)
+                return newInventory
+        if len(inventoryTotal) == 0:
+            new_value.insert(0,str(int(newInventory[-1][0]) + 1)) 
+            newInventory.append(new_value)
+        #check if new inventory is empty if it is we increment from old
+        elif len(newInventory) == 0:
+            new_value.insert(0,str(int(inventoryTotal[-1][0]) + 1))
+            newInventory.append(new_value)
     return newInventory
 
 def calculate_tax(inventory):
@@ -96,7 +106,7 @@ newInventory = []
 while True :
     #print("\nTotal Deliveries Processed: " + str(inventory))
     accepted_Input = get_valid_input()
-    print(inventory)
+    #print(inventory)
     if accepted_Input == 'quit':
         inventory = write_inventory(inventory,newInventory)
         generate_report(inventory,newInventory,rejected)
